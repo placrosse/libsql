@@ -20,6 +20,7 @@ members = [
 
 [profile.release]
 codegen-units = 1
+lto = true
 panic = "abort"
 
 [workspace.dependencies]
@@ -51,3 +52,8 @@ create-release = false
 [profile.dist]
 inherits = "release"
 lto = "thin"
+
+[profile.release.package.sql-experimental]
+debug = false
+strip = true
+opt-level = "z"
