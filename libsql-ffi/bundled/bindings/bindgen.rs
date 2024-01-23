@@ -1104,6 +1104,15 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn sqlite3_wal_backfilled(pWal: *mut sqlite3_wal) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn sqlite3_wal_frame_page_no(
+        pWal: *mut sqlite3_wal,
+        iFrame: ::std::os::raw::c_uint,
+    ) -> ::std::os::raw::c_uint;
+}
+extern "C" {
     pub fn libsql_try_initialize_wasm_func_table(db: *mut sqlite3) -> ::std::os::raw::c_int;
 }
 extern "C" {
