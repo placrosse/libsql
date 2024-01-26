@@ -13,6 +13,7 @@ use crate::error::Error;
 use crate::metrics::DIRTY_STARTUP;
 use crate::migration::maybe_migrate;
 use crate::net::Accept;
+use crate::pager::{PAGER_CACHE_SIZE, make_pager};
 use crate::rpc::proxy::rpc::proxy_server::Proxy;
 use crate::rpc::proxy::ProxyService;
 use crate::rpc::replica_proxy::ReplicaProxyService;
@@ -35,6 +36,7 @@ use namespace::{
 use net::Connector;
 use once_cell::sync::Lazy;
 use replication::NamespacedSnapshotCallback;
+use rusqlite::ffi::{sqlite3_config, SQLITE_CONFIG_PCACHE2};
 use tokio::runtime::Runtime;
 use tokio::sync::{mpsc, Notify, Semaphore};
 use tokio::task::JoinSet;
@@ -71,6 +73,7 @@ mod stats;
 #[cfg(test)]
 mod test;
 mod utils;
+mod pager;
 
 const DB_CREATE_TIMEOUT: Duration = Duration::from_secs(1);
 const DEFAULT_AUTO_CHECKPOINT: u32 = 1000;
@@ -368,6 +371,15 @@ where
 
     pub async fn start(mut self) -> anyhow::Result<()> {
         let mut join_set = JoinSet::new();
+
+        if let Ok(size) = std::env::var("LIBSQL_EXPERIMENTAL_PAGER") {
+            let size = size.parse()?;
+            PAGER_CACHE_SIZE.store(size, std::sync::atomic::Ordering::SeqCst);
+            unsafe {
+                let rc = sqlite3_config(SQLITE_CONFIG_PCACHE2, &make_pager());
+                assert_eq!(rc, 0);
+            }
+        }
 
         init_version_file(&self.path)?;
         maybe_migrate(&self.path)?;
