@@ -680,7 +680,7 @@ mod test {
         logfile.write_header().unwrap();
 
         let _compactor =
-            LogCompactor::new(tmp.path(), Uuid::new_v4(), Box::new(|_| Ok(())), None).unwrap();
+            LogCompactor::new(tmp.path(), Uuid::new_v4(), Box::new(|_| Ok(()))).unwrap();
         tokio::time::sleep(Duration::from_millis(1000)).await;
 
         // emtpy snapshot was discarded
