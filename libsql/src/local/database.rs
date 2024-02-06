@@ -295,4 +295,8 @@ impl Database {
             ))
         }
     }
+
+    pub(crate) fn path(&self) -> &str {
+        &self.db_path
+    }
 }
